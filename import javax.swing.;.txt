@@ -1,0 +1,87 @@
+import javax.swing.*;
+import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class AdmissionForm extends JFrame {
+
+    private final JTextField nameField = new JTextField();
+    private final JTextField classField = new JTextField();
+    private final JTextField guardianField = new JTextField();
+    private final JTextField phoneField = new JTextField();
+    private final JComboBox<String> courseBox = new JComboBox<>(
+            new String[]{"Science Batch", "Arts/Commerce Batch", "Academic Care", "Special Care"}
+    );
+
+    public AdmissionForm() {
+        setTitle("Adroit Private Home - Admission Form");
+        setSize(450, 320);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        JLabel headerLabel = new JLabel("Adroit Private Home - Admission", SwingConstants.CENTER);
+        headerLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 8));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        formPanel.add(new JLabel("Student Name:"));
+        formPanel.add(nameField);
+
+        formPanel.add(new JLabel("Class / Grade:"));
+        formPanel.add(classField);
+
+        formPanel.add(new JLabel("Guardian Name:"));
+        formPanel.add(guardianField);
+
+        formPanel.add(new JLabel("Phone Number:"));
+        formPanel.add(phoneField);
+
+        formPanel.add(new JLabel("Course / Batch:"));
+        formPanel.add(courseBox);
+
+        JButton submitBtn = new JButton("Submit Admission");
+        submitBtn.addActionListener(e -> saveAdmission());
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.add(submitBtn);
+
+        add(headerLabel, BorderLayout.NORTH);
+        add(formPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    private void saveAdmission() {
+        String name = nameField.getText().trim();
+        String studentClass = classField.getText().trim();
+        String guardian = guardianField.getText().trim();
+        String phone = phoneField.getText().trim();
+        String course = (String) courseBox.getSelectedItem();
+
+        if (name.isEmpty() || studentClass.isEmpty() || guardian.isEmpty() || phone.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
+        }
+
+        try (PrintWriter out = new PrintWriter(new FileWriter("admissions.csv", true))) {
+            out.println("\"" + name + "\",\"" + studentClass + "\",\"" + guardian + "\",\"" + phone + "\",\"" + course + "\"");
+            JOptionPane.showMessageDialog(this, "Admission saved to admissions.csv");
+
+            nameField.setText("");
+            classField.setText("");
+            guardianField.setText("");
+            phoneField.setText("");
+            courseBox.setSelectedIndex(0);
+            nameField.requestFocus();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new AdmissionForm().setVisible(true));
+    }
+}
